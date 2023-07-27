@@ -1,10 +1,9 @@
 // routes/login/+page.server.ts
 import { auth } from "$lib/server/lucia";
-import { LuciaError } from "lucia";
 import { fail, redirect } from "@sveltejs/kit";
-
+import { LuciaError } from "lucia";
+import { isValidEmail } from "$lib/server/email";
 import type { Actions, PageServerLoad } from "./$types";
-import { isValidEmail } from "$lib/email";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();

@@ -4,12 +4,16 @@ import { fail, redirect } from "@sveltejs/kit";
 
 import type { Actions, PageServerLoad } from "./$types";
 import { LuciaError } from "lucia";
-import { isValidEmail } from "$lib/email";
+import { isValidEmail } from "$lib/server/email";
 import { generateEmailVerificationToken } from "$lib/server/tokens";
+import { sendEmailVerificationLink } from "$lib/server/email";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
-  if (session) throw redirect(302, "/");
+  if (session) {
+    if (!session.user.emailVerified) throw redirect(302, "/email-verification");
+    throw redirect(302, "/")
+  };
   return {};
 };
 
@@ -59,7 +63,7 @@ export const actions: Actions = {
       console.log('User Session', session)
       locals.auth.setSession(session); // set session cookie
       const token = await generateEmailVerificationToken(user.userId);
-      await sendEmailVerificationLink(token);
+      await sendEmailVerificationLink(email, token);
       console.log("User Token", token)
     } catch (e) {
       console.log("Error Signup", e)
@@ -69,7 +73,7 @@ export const actions: Actions = {
         e.message === "AUTH_INVALID_USER_ID"
       ) {
         return fail(400, {
-          message: "Username already taken"
+          message: "Username/Account already taken"
         });
       }
       return fail(500, {
@@ -78,6 +82,6 @@ export const actions: Actions = {
     }
     // redirect to
     // make sure you don't throw inside a try/catch block!
-    throw redirect(302, "/");
+    throw redirect(302, "/email-verification");
   }
 };
