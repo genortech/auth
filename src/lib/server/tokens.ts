@@ -25,7 +25,9 @@ export const validateEmailVerificationToken = async (token: string) => {
   const storedToken = await dbHttp.transaction(async (trx) => {
     const storedToken = await trx.select().from(userEmailVerificationTable).where(eq(userEmailVerificationTable.id, token))
     console.log("StoredToken", storedToken)
-    if (!storedToken) throw new Error("Invalid token");
+    if (!storedToken) {
+      throw new Error("Invalid token");
+    }
     await trx.delete(userEmailVerificationTable).where(eq(userEmailVerificationTable.userId, storedToken.userId))
     return storedToken;
   });
