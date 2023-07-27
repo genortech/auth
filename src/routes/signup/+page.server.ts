@@ -20,9 +20,8 @@ export const actions: Actions = {
     const password = formData.get("password");
     // basic check
     if (!isValidEmail(email)) {
-      return new Response("Invalid email", {
-        status: 400
-      });
+      return fail(400, { message: "Invalid email" }
+      );
     }
     console.log("Email is valid")
     if (
@@ -44,22 +43,24 @@ export const actions: Actions = {
           password // hashed by Lucia
         },
         attributes: {
-          email
+          email: email.toLowerCase()
         }
+
       });
       console.log("User Details", user)
       console.log("Creating Session")
       const session = await auth.createSession({
         userId: user.userId,
-        attributes: {}
+        attributes: {
+        }
       });
       console.log('User Session', session)
       locals.auth.setSession(session); // set session cookie
     } catch (e) {
+      console.log("Error Signup", e)
       // this part depends on the database you're using
       // check for unique constraint error in user table
-      if (
-        e instanceof LuciaError &&
+      if (e instanceof LuciaError &&
         e.message === "AUTH_INVALID_USER_ID"
       ) {
         return fail(400, {

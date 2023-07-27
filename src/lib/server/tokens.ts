@@ -1,10 +1,10 @@
-
 import { generateRandomString, isWithinExpiration } from "lucia/utils";
+import { dbHttp } from "./db/db";
 
 const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 
 // export const generateEmailVerificationToken = async (userId: string) => {
-//   const storedUserTokens = await db
+//   const storedUserTokens = await dbHttp.
 //     .table("email_verification_token")
 //     .where("user_id", "=", userId)
 //     .getAll();
@@ -17,7 +17,7 @@ const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 //     if (reusableStoredToken) return reusableStoredToken.id;
 //   }
 //   const token = generateRandomString(63);
-//   await db.table("email_verification_token").insert({
+//   await dbHttp.table("email_verification_token").insert({
 //     id: token,
 //     expires: new Date().getTime() + EXPIRES_IN,
 //     user_id: userId
@@ -25,24 +25,24 @@ const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 //
 //   return token;
 // };
-
-
+//
+//
 // export const validateEmailVerificationToken = async (token: string) => {
-// 	const storedToken = await db.transaction(async (trx) => {
-// 		const storedToken = await trx
-// 			.table("email_verification_token")
-// 			.where("id", "=", token)
-// 			.get();
-// 		if (!storedToken) throw new Error("Invalid token");
-// 		await trx
-// 			.table("email_verification_token")
-// 			.where("user_id", "=", storedToken.user_id)
-// 			.delete();
-// 		return storedToken;
-// 	});
-// 	const tokenExpires = Number(storedToken.expires); // bigint => number conversion
-// 	if (!isWithinExpiration(tokenExpires)) {
-// 		throw new Error("Expired token");
-// 	}
-// 	return storedToken.user_id;
+//   const storedToken = await dbHttp.transaction(async (trx) => {
+//     const storedToken = await trx
+//       .table("email_verification_token")
+//       .where("id", "=", token)
+//       .get();
+//     if (!storedToken) throw new Error("Invalid token");
+//     await trx
+//       .table("email_verification_token")
+//       .where("user_id", "=", storedToken.user_id)
+//       .delete();
+//     return storedToken;
+//   });
+//   const tokenExpires = Number(storedToken.expires); // bigint => number conversion
+//   if (!isWithinExpiration(tokenExpires)) {
+//     throw new Error("Expired token");
+//   }
+//   return storedToken.user_id;
 // };

@@ -1,19 +1,20 @@
-import { bigint, integer, pgTable, serial, text } from 'drizzle-orm/pg-core'
+import { bigint, pgTable, text, varchar } from 'drizzle-orm/pg-core'
 
 export const usersTable = pgTable('auth_user', {
-  id: serial('id').notNull().primaryKey(),
-  email: text('email').notNull()
+  id: text('id').primaryKey(),
+  email: text('email').notNull(),
 })
 
 export const userKey = pgTable('user_key', {
-  id: serial('id').notNull().primaryKey(),
-  userId: integer('user_id').notNull().references(() => usersTable.id),
-  hashedPassword: text('password')
+  id: text('id').primaryKey(),
+  userId: text("user_id").references(() => usersTable.id),
+  hashedPassword: varchar('hashed_password', { length: 255 }),
+
 })
 
 export const userSession = pgTable('user_session', {
-  id: serial('id').notNull().primaryKey(),
-  userId: integer('user_id').notNull().references(() => usersTable.id),
+  id: text('id').primaryKey(),
+  userId: text("user_id").references(() => usersTable.id),
   activeExpires: bigint('active_expires', {
     mode: 'number'
   }).notNull(),

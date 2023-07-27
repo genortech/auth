@@ -12,7 +12,6 @@ export const load: PageServerLoad = async ({ locals }) => {
   return {};
 };
 
-
 export const actions: Actions = {
   default: async ({ request, locals }) => {
     const formData = await request.formData();
@@ -22,9 +21,8 @@ export const actions: Actions = {
 
     // basic check
     if (!isValidEmail(email)) {
-      return new Response("Invalid email", {
-        status: 400
-      });
+      return fail(400, { message: "Invalid email" }
+      );
     }
     console.log("Email is valid")
     if (
@@ -55,6 +53,7 @@ export const actions: Actions = {
       console.log("Session Active", session)
       locals.auth.setSession(session); // set session cookie
     } catch (e) {
+      console.log("Login Error", e)
       if (
         e instanceof LuciaError &&
         (e.message === "AUTH_INVALID_KEY_ID" ||

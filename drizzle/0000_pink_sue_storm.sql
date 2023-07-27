@@ -1,18 +1,18 @@
 CREATE TABLE IF NOT EXISTS "user_key" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"password" text
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text,
+	"hashed_password" varchar(255)
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_session" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text,
 	"active_expires" bigint NOT NULL,
 	"idle_expires" bigint NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "auth_user" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"email" text NOT NULL
 );
 --> statement-breakpoint
