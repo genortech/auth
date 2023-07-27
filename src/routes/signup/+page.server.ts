@@ -5,6 +5,7 @@ import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 import { LuciaError } from "lucia";
 import { isValidEmail } from "$lib/email";
+import { generateEmailVerificationToken } from "$lib/server/tokens";
 
 export const load: PageServerLoad = async ({ locals }) => {
   const session = await locals.auth.validate();
@@ -43,7 +44,8 @@ export const actions: Actions = {
           password // hashed by Lucia
         },
         attributes: {
-          email: email.toLowerCase()
+          email: email.toLowerCase(),
+          email_verified: false,
         }
 
       });
@@ -56,6 +58,9 @@ export const actions: Actions = {
       });
       console.log('User Session', session)
       locals.auth.setSession(session); // set session cookie
+      const token = await generateEmailVerificationToken(user.userId);
+      await sendEmailVerificationLink(token);
+      console.log("User Token", token)
     } catch (e) {
       console.log("Error Signup", e)
       // this part depends on the database you're using

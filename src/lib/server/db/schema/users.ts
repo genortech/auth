@@ -1,8 +1,11 @@
-import { bigint, pgTable, text, varchar } from 'drizzle-orm/pg-core'
+import { bigint, boolean, pgTable, text, timestamp, varchar } from 'drizzle-orm/pg-core'
 
 export const usersTable = pgTable('auth_user', {
   id: text('id').primaryKey(),
   email: text('email').notNull(),
+  emailVerified: boolean('email_verified'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 })
 
 export const userKey = pgTable('user_key', {
@@ -12,7 +15,7 @@ export const userKey = pgTable('user_key', {
 
 })
 
-export const userSession = pgTable('user_session', {
+export const userSessionTable = pgTable('user_session', {
   id: text('id').primaryKey(),
   userId: text("user_id").references(() => usersTable.id),
   activeExpires: bigint('active_expires', {
@@ -21,5 +24,23 @@ export const userSession = pgTable('user_session', {
   idleExpires: bigint('idle_expires', {
     mode: 'number'
   }).notNull()
+
+})
+
+export const userEmailVerificationTable = pgTable('email_verification_token', {
+  id: text('id').primaryKey(),
+  userId: text("user_id").references(() => usersTable.id),
+  expires: bigint('idle_expires', {
+    mode: 'number'
+  }).notNull(),
+
+})
+
+export const userPasswordVerificationTable = pgTable('password_reset_token', {
+  id: text('id').primaryKey(),
+  userId: text("user_id").references(() => usersTable.id),
+  expires: bigint('idle_expires', {
+    mode: 'number'
+  }).notNull(),
 
 })
