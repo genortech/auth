@@ -1,6 +1,6 @@
 // routes/email-verification/[token]/+server.ts
 import { auth } from "$lib/server/lucia";
-import { validateEmailVerificationToken } from "$lib/server/tokens";
+import validateEmailVerificationToken from "$lib/server/tokens";
 import { fail } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 

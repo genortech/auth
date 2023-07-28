@@ -6,7 +6,12 @@ import { userEmailVerificationTable, userPasswordVerificationTable } from "./db/
 const EXPIRES_IN = 1000 * 60 * 60 * 2; // 2 hours
 
 export const generateEmailVerificationToken = async (userId: string) => {
-  const storedUserTokens = await dbHttp.select().from(userEmailVerificationTable).where(eq(userEmailVerificationTable.userId, userId))
+  const storedUserTokens = await dbHttp
+    .select()
+    .from(userEmailVerificationTable)
+    .where(
+      eq(userEmailVerificationTable.userId, userId)
+    )
   if (storedUserTokens.length > 0) {
     const reusableStoredToken = storedUserTokens.find((token) => {
       // check if expiration is within 1 hour
@@ -16,19 +21,35 @@ export const generateEmailVerificationToken = async (userId: string) => {
     if (reusableStoredToken) return reusableStoredToken.id;
   }
   const token = generateRandomString(63);
-  await dbHttp.insert(userEmailVerificationTable).values({ userId: userId, id: token, expires: new Date().getTime() + EXPIRES_IN })
+  await dbHttp
+    .insert(userEmailVerificationTable)
+    .values({
+      userId: userId,
+      id: token,
+      expires: new Date().getTime() + EXPIRES_IN
+    })
 
   return token;
 };
 
-export const validateEmailVerificationToken = async (token: string) => {
+export default async (token: string) => {
   const storedToken = await dbHttp.transaction(async (trx) => {
-    const storedToken = await trx.select().from(userEmailVerificationTable).where(eq(userEmailVerificationTable.id, token)).limit(1)
- 
+    const storedToken = await trx
+      .select()
+      .from(userEmailVerificationTable)
+      .where(
+        eq(userEmailVerificationTable.id, token)
+      )
+      .limit(1);
+
     if (!storedToken) {
       throw new Error("Invalid token");
     }
-    await trx.delete(userEmailVerificationTable).where(eq(userEmailVerificationTable.userId, storedToken.userId))
+    await trx
+      .delete(userEmailVerificationTable)
+      .where(
+        eq(userEmailVerificationTable.userId, storedToken.userId)
+      );
     return storedToken;
   });
   const tokenExpires = Number(storedToken.expires); // bigint => number conversion
@@ -39,40 +60,67 @@ export const validateEmailVerificationToken = async (token: string) => {
 };
 
 export const generatePasswordResetToken = async (userId: string) => {
-	const storedUserTokens = await dbHttp.select().from(userPasswordVerificationTable).where(eq(userPasswordVerificationTable.userId,userId))
-		if (storedUserTokens.length > 0) {
-		const reusableStoredToken = storedUserTokens.find((token) => {
-			// check if expiration is within 1 hour
-			// and reuse the token if true
-			return isWithinExpiration(Number(token.expires) - EXPIRES_IN / 2);
-		});
-		if (reusableStoredToken) return reusableStoredToken.id;
-	}
-	const token = generateRandomString(63);
-	await dbHttp.insert(userPasswordVerificationTable).values({ userId: userId, id: token, expires: new Date().getTime() + EXPIRES_IN })
-		return token;
+  const storedUserTokens = await dbHttp
+    .select()
+    .from(userPasswordVerificationTable)
+    .where(
+      eq(userPasswordVerificationTable.userId, userId)
+    )
+  if (storedUserTokens.length > 0) {
+    const reusableStoredToken = storedUserTokens.find((token) => {
+      // check if expiration is within 1 hour
+      // and reuse the token if true
+      return isWithinExpiration(Number(token.expires) - EXPIRES_IN / 2);
+    });
+    if (reusableStoredToken) return reusableStoredToken.id;
+  }
+  const token = generateRandomString(63);
+  await dbHttp
+    .insert(userPasswordVerificationTable)
+    .values({
+      userId: userId,
+      id: token,
+      expires: new Date().getTime() + EXPIRES_IN
+    })
+  return token;
 };
 
 export const validatePasswordResetToken = async (token: string) => {
-	const storedToken = await dbHttp.transaction(async (trx) => {
-		const storedToken = await trx.select().from(userPasswordVerificationTable).where(eq(userPasswordVerificationTable.id,token)).limit(1)
-			if (!storedToken) throw new Error('Invalid token');
-		await trx.delete(userPasswordVerificationTable).where(eq(userPasswordVerificationTable.id, token));
-		return storedToken;
-	});
-	const tokenExpires = Number(storedToken.expires); // bigint => number conversion
-	if (!isWithinExpiration(tokenExpires)) {
-		throw new Error('Expired token');
-	}
-	return storedToken.userId;
+  const storedToken = await dbHttp.transaction(async (trx) => {
+    const storedToken = await trx
+      .select()
+      .from(userPasswordVerificationTable)
+      .where(
+        eq(userPasswordVerificationTable.id, token)
+      )
+      .limit(1)
+    if (!storedToken) throw new Error('Invalid token');
+    await trx
+      .delete(userPasswordVerificationTable)
+      .where(
+        eq(userPasswordVerificationTable.id, token)
+      );
+    return storedToken;
+  });
+  const tokenExpires = Number(storedToken.expires); // bigint => number conversion
+  if (!isWithinExpiration(tokenExpires)) {
+    throw new Error('Expired token');
+  }
+  return storedToken.userId;
 };
 
 export const isValidPasswordResetToken = async (token: string) => {
-	const storedToken = await dbHttp.select().from(userPasswordVerificationTable).where(eq(userPasswordVerificationTable.id,token)).limit(1);
-	if (!storedToken) return false;
-	const tokenExpires = Number(storedToken.expires); // bigint => number conversion
-	if (!isWithinExpiration(tokenExpires)) {
-		return false;
-	}
-	return true;
+  const storedToken = await dbHttp
+    .select()
+    .from(userPasswordVerificationTable)
+    .where(
+      eq(userPasswordVerificationTable.id, token)
+    )
+    .limit(1);
+  if (!storedToken) return false;
+  const tokenExpires = Number(storedToken.expires); // bigint => number conversion
+  if (!isWithinExpiration(tokenExpires)) {
+    return false;
+  }
+  return true;
 };
