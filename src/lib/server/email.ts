@@ -16,7 +16,7 @@ export const sendEmailVerificationLink = async (email, token: string) => {
 };
 
 export const sendPasswordResetLink = async (email, token: string) => {
-  const url = `http://localhost:5173/email-verification/${token}`;
+  const url = `http://localhost:5173/password-reset/${token}`;
   console.log(url)
   // await sendEmail(email, {
   //   // ...
