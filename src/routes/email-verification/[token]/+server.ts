@@ -1,17 +1,18 @@
 // routes/email-verification/[token]/+server.ts
 import { auth } from "$lib/server/lucia";
 import { validateEmailVerificationToken } from "$lib/server/tokens";
-import type { RequestHandler } from "./$types";
+import type { RequestHandler } from "@sveltejs/kit";
 
 
 
-export const GET = (async ({ token: params, locals }) => {
+export const GET = (async ({ params, locals }) => {
   console.log("Token Verification")
   const { token } = params;
+  console.log("Token", token)
   try {
-    const userId = await validateEmailVerificationToken(token as string);
+    const userId = await validateEmailVerificationToken(token);
     console.log("UserId Returned")
-    const user = await auth.getUser(userId as string);
+    const user = await auth.getUser(userId);
     await auth.invalidateAllUserSessions(user.userId);
     await auth.updateUserAttributes(user.userId, {
       email_verified: true // `Number(true)` if stored as an integer
@@ -22,7 +23,7 @@ export const GET = (async ({ token: params, locals }) => {
       attributes: {}
     });
     locals.auth.setSession(session);
-    console.log("Session")
+    console.log("Session Created")
     return new Response(null, {
       status: 302,
       headers: {

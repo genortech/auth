@@ -1,5 +1,5 @@
 import { generateRandomString, isWithinExpiration } from "lucia/utils";
-import { dbHttp } from "./db/db";
+import { dbHttp, dbPool } from "./db/db";
 import { eq } from "drizzle-orm";
 import { userEmailVerificationTable, userPasswordVerificationTable } from "./db/schema/users";
 
@@ -27,18 +27,22 @@ export const generateEmailVerificationToken = async (userId: string) => {
 };
 
 export const validateEmailVerificationToken = async (token: string) => {
-  const storedToken = await dbHttp.transaction(async (trx) => {
+  console.log("Validating Token", token)
+  const storedToken = await dbPool.transaction(async (trx) => {
     const [storedToken] = await trx
       .select()
       .from(userEmailVerificationTable)
       .where(eq(userEmailVerificationTable.id, token))
-
+      .limit(1)
+    console.log(storedToken)
     if (!storedToken) {
+      console.log("Invalid Token Checked")
       throw new Error("Invalid token");
     }
     await trx
       .delete(userEmailVerificationTable)
-      .where(eq(userEmailVerificationTable.userId, storedToken.userId as string))
+      .where(eq(userEmailVerificationTable.userId, storedToken.userId))
+    console.log("Token Deleted")
     return storedToken;
   });
   const tokenExpires = Number(storedToken.expires); // bigint => number conversion
@@ -77,7 +81,7 @@ export const validatePasswordResetToken = async (token: string) => {
     if (!storedToken) throw new Error('Invalid token');
     await trx
       .delete(userPasswordVerificationTable)
-      .where(eq(userPasswordVerificationTable.userId, storedToken.userId as string));
+      .where(eq(userPasswordVerificationTable.userId, storedToken.userId));
     return storedToken;
   });
   const tokenExpires = Number(storedToken.expires); // bigint => number conversion
