@@ -14,3 +14,11 @@ export const sendEmailVerificationLink = async (email, token: string) => {
   //   // ...
   // });
 };
+
+export const sendPasswordResetLink = async (email, token: string) => {
+  const url = `http://localhost:5173/email-verification/${token}`;
+  console.log(url)
+  // await sendEmail(email, {
+  //   // ...
+  // });
+};

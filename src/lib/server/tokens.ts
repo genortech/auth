@@ -73,15 +73,15 @@ export const generatePasswordResetToken = async (userId: string) => {
 };
 
 export const validatePasswordResetToken = async (token: string) => {
-  const storedToken = await dbHttp.transaction(async (trx) => {
+  const storedToken = await dbPool.transaction(async (trx) => {
     const [storedToken] = await trx
       .select()
       .from(userPasswordVerificationTable)
-      .where(eq(userPasswordVerificationTable.id, token))
+      .where(eq(userPasswordVerificationTable.id, token)).limit(1)
     if (!storedToken) throw new Error('Invalid token');
     await trx
       .delete(userPasswordVerificationTable)
-      .where(eq(userPasswordVerificationTable.userId, storedToken.userId));
+      .where(eq(userPasswordVerificationTable.id, storedToken.id));
     return storedToken;
   });
   const tokenExpires = Number(storedToken.expires); // bigint => number conversion
