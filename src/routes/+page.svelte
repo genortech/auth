@@ -9,6 +9,7 @@
 <h1>Profile</h1>
 <p>User id: {data.userId}</p>
 <p>Email: {data.email}</p>
+<p>Github username: {data.githubUsername}</p>
 <form method="post" action="?/logout" use:enhance>
 	<input type="submit" value="Sign out" />
 </form>

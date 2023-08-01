@@ -12,3 +12,4 @@
 	<input type="submit" />
 </form>
 <a href="/signup">Create an account</a>
+<a href="/login/github">Sign in with Github</a>

@@ -15,6 +15,7 @@ declare global {
     type DatabaseUserAttributes = {
       email: string;
       email_verified: boolean;
+      github_username: string;
     };
     type DatabaseSessionAttributes = Record<string, never>;
   }

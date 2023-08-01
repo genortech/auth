@@ -3,6 +3,7 @@ import { bigint, boolean, pgTable, text, timestamp, varchar } from 'drizzle-orm/
 export const usersTable = pgTable('auth_user', {
   id: text('id').primaryKey(),
   email: text('email').notNull(),
+  githubUsername: varchar('github_username', { length: 255 }),
   emailVerified: boolean('email_verified'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

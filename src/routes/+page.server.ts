@@ -11,7 +11,8 @@ export const load: PageServerLoad = async ({ locals }) => {
   }
   return {
     userId: session.user.userId,
-    email: session.user.email
+    email: session.user.email,
+    githubUsername: session.user.githubUsername
   };
 };
 
