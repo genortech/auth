@@ -1,0 +1,1 @@
+ALTER TABLE "auth_user" ADD COLUMN "github_username" varchar(255);

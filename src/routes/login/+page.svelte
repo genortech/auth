@@ -11,5 +11,5 @@
 	<input type="password" name="password" id="password" /><br />
 	<input type="submit" />
 </form>
-<a href="/signup">Create an account</a>
+<a href="/signup">Create an account</a><br />
 <a href="/login/github">Sign in with Github</a>
